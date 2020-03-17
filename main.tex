@@ -1,0 +1,60 @@
+% document type
+\documentclass[twocolumn,final]{svjour3}
+\smartqed  % flush right qed marks, e.g. at end of proof
+% packages
+%\usepackage{cite}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath}			% Advanced math typesetting
+\usepackage{algorithm}
+\usepackage{algpseudocode}		% pseudocode support 
+\usepackage[english]{babel}		
+% Change hyphenation rules for the words where needed
+\babelhyphenation[english]{al-go-rithms clus-te-red par-ti-tion-ing bi-par-ti-tion-ing sig-ni-fi-cant-ly sur-veil-lance ap-pro-ach-es re-gi-on over-view pipe-li-ne me-thod seg-men-ta-ti-on un-der-seg-men-ta-ti-on ov-er-seg-men-ta-ti-on per-forms strong-ly un-der spe-ci-fi-cal-ly Tas-ter Cham-paign re-gi-on im-ple-men-ted where-as}
+
+\usepackage[hidelinks]{hyperref}% Add http links to your document
+%\hypersetup{final}
+\usepackage{enumitem}			% for the list
+\usepackage{array}				% for tables
+\usepackage{flushend}			% equal last columns length
+
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\begin{document}
+
+\author{A1 \and A2 \and A3 \and A4}
+% university and contact email
+\institute{Russia, Innopolis, Innopolis University, \\\email{stanislav.protasov@gmail.com}}
+\title{Paper Title}
+% first author is here
+\authorrunning{A1 et al.}  
+\maketitle{}					% Generates title
+
+
+% tell about main problem and result. Better have 1-2 short sentences for each part
+\begin{abstract}
+% problem
+We don't have enough gold.
+% task
+We decided to rob a caravan with gold.
+% how we solve it
+To do this we hired 40 bandits and promised to pay a share.
+% results
+Caravan was robbed, but bandits took all the money.
+% application
+...
+\keywords{TAG1 \and TAG2 \and TAG3 \and TAG4}
+\end{abstract}
+
+\input{parts/00_intro}
+\input{parts/01_related}
+\input{parts/02_method}
+\input{parts/03_results}
+\input{parts/04_discussion}
+\input{parts/05_conclusion}
+
+% bibliography settings
+\bibliographystyle{spmpsci}
+% link to bibtex file
+\bibliography{links}
+\end{document}
