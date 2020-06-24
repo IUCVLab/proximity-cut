@@ -31,7 +31,7 @@ class NSWGraph:
             for n in node.neighbourhood:
                 yield (i, n)
         
-    def search_nsw_basic(self, query, top=5, guard_hops=100):
+    def search_nsw_basic(self, query, top=5, guard_hops=100, callback=None):
         ''' basic algorithm, takes vector query and returns a pair (nearest_neighbours, hops)'''
         candidates = sortedcontainers.SortedList()
         result = sortedcontainers.SortedList()
@@ -43,34 +43,40 @@ class NSWGraph:
         result.add((self.dist(query, self.nodes[current].value), current))
 
         hops = 0
+        closest_candidate_ever = None
         while hops < guard_hops:
             hops += 1
             if len(candidates) == 0: break
-            closest_sim, с = candidates.pop()        
+            closest_sim, сlosest_id = candidates[0]
+            if closest_candidate_ever == сlosest_id: break
+            closest_candidate_ever = сlosest_id
             # k-th best
             if len(result) >= top:
                 if result[top-1][0] < closest_sim: break
 
-            for friend in self.nodes[с].neighbourhood:
+            for friend in self.nodes[сlosest_id].neighbourhood:
                 if friend not in visitedSet:
                     visitedSet.add(friend)
                     sim = self.dist(query, self.nodes[friend].value)
                     candidates.add((sim, friend))
                     result.add((sim, friend))
+                    
+            if callback is not None:
+                callback(self.nodes[friend].value, candidates)
 
         return [v for k, v in result[:top]], hops
     
-    def multi_search(self, query, attempts=1, top_k=5):   
+    def multi_search(self, query, attempts=1, top=5):   
         '''Implementation of `K-NNSearch`, but without keeping the visitedSet'''
         result = set()
         for i in range(attempts):
-            closest, hops = self.search_nsw_basic(query, top=top_k)
+            closest, hops = self.search_nsw_basic(query, top=top)
             result.update(closest)    
         index = list((i, self.dist(query, self.nodes[i].value)) for i in result)    
-        sorted_index = sorted(index, key=lambda pair: pair[1])[:top_k]
+        sorted_index = sorted(index, key=lambda pair: pair[1])[:top]
         return [x[0] for x in sorted_index]
     
-    def build_navigable_graph(self, values, K=5, multi_n=3):
+    def build_navigable_graph(self, values, K=5, attempts=3):
         '''Accepts container with values. Returns list with graph nodes'''
         # create graph with one node
         self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
@@ -79,7 +85,7 @@ class NSWGraph:
             val = values[i][0]
             # search K nearest neighbors of the current value existing in the graph
             top_k = min(len(self.nodes), K) # for the first K insertions            
-            closest = self.multi_search(val, multi_n, top_k)
+            closest = self.multi_search(val, attempts, top_k)
             # create a new node
             self.nodes.append(Node(val, len(self.nodes) + 1, values[i][1]))
             # connect the closest nodes to the current node
