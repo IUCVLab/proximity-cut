@@ -5,6 +5,7 @@ from scipy.spatial import distance
 from numpy.linalg import norm as vector_norm
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pickle
 
 class Node:
     ''' Graph node class. Major properties are `value` to access embedding and `neighbourhood` for adjacent nodes '''
@@ -16,8 +17,13 @@ class Node:
         
 class NSWGraph:
     
+    @staticmethod
+    def load(filename):
+        with open(filename, 'rb') as f:
+            return pickle.load(f)
+    
     def __init__(self, values=None, dist=None):
-        self.dist = dist if dist else lambda val_a, val_b: self.eucl_dist(val_a, val_b)
+        self.dist = dist if dist else self.eucl_dist
         self.nodes = [Node(node[0], i, node[1]) for i, node in enumerate(values)] if values else []
 
     def neg_dot_prod(self, v1, v2):
@@ -139,6 +145,11 @@ class NSWGraph:
             alpha=0.7
         )
         plt.show()
+        
+    def save(self, filename):
+        with open(filename, 'wb') as f:
+            pickle.dump(self, f)
+
 
 if __name__ == "__main__":
     print("Module NSW launched as program.")
