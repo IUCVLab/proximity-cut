@@ -2,7 +2,7 @@ import sys
 import random
 import sortedcontainers
 from collections import Counter
-from nsw import Node, NSWGraph
+from nsw.nsw import Node, NSWGraph
 
 
 class NSWClassifier(NSWGraph):
@@ -10,6 +10,24 @@ class NSWClassifier(NSWGraph):
     def __init__(self):
         super().__init__()
         self.cut = set()
+
+    def build_navigable_graph(self, values, attempts=3):
+        self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
+        d = len(values[0][0])
+        f = 3 * d
+        print(f"Classifer process. Data dimensionality detected is {d}. regularity = {f}")
+        
+        # insert the remaining nodes one at a time
+        for i in range(1, len(values)):
+            val = values[i][0]
+            closest = self.multi_search(val, attempts, f)
+            node = Node(val, len(self.nodes), values[i][1])
+            self.nodes.append(node)
+            node.neighbourhood.update(closest)
+            for c in closest:
+                self.nodes[c].neighbourhood.add(len(self.nodes) - 1)
+                if node._class != self.nodes[c]._class:
+                    self.cut.add((node.idx, c))
 
     def classify_by_path_basic(self, query, guard_hops=100, callback=None):
         visitedSet, candidates, tmpResult = set(), sortedcontainers.SortedList(), sortedcontainers.SortedList()
@@ -61,22 +79,21 @@ class NSWClassifier(NSWGraph):
             c = self.classify_by_path_basic(query)
             result[c] += 1
         return {(k, v / attempts) for k, v in result.items()}
-    
-    def build_navigable_graph(self, values, attempts=3):
-        self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
-        d = len(values[0][0])
-        f = 3 * d
-        print(f"Classifer process. Data dimensionality detected is {d}. regularity = {f}")
+                        
+    def classify_knn(self, query, attempts=5, k=11):
+        top = self.multi_search(query, attempts, k)
+        classes = Counter([self.nodes[i]._class for i in top])
+        most_common = classes.most_common(1)[0]
         
-        # insert the remaining nodes one at a time
-        for i in range(1, len(values)):
-            val = values[i][0]
-            closest = self.multi_search(val, attempts, f)
-            node = Node(val, len(self.nodes), values[i][1])
-            self.nodes.append(node)
-            node.neighbourhood.update(closest)
-            for c in closest:
-                self.nodes[c].neighbourhood.add(len(self.nodes) - 1)
-                if node._class != self.nodes[c]._class:
-                    self.cut.add((node.idx, c))
-                
+        # not confident
+        if most_common[1] * 2 < k:
+            return None
+        
+        return most_common[0]
+    
+    def classify_fuzzy_knn(self, query, attempts=5, k=11):
+        top = self.multi_search(query, attempts=attempts, top=k)
+        print(top)
+        classes = Counter([self.nodes[i]._class for i in top])
+        
+        return {(key, val / k) for key, val in classes.items()}

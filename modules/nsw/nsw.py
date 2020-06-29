@@ -44,11 +44,10 @@ class NSWGraph:
         ''' basic algorithm, takes vector query and returns a pair (nearest_neighbours, hops)'''
 
         # taking random node as an entry point
-        entry = random.randint(0, len(self.nodes) - 1)
-        candidates.add((self.dist(query, self.nodes[entry].value), entry))
-
-        # tempRes ← null
         tmpResult = sortedcontainers.SortedList()
+        entry = random.randint(0, len(self.nodes) - 1)
+        if entry not in visitedSet:
+            candidates.add((self.dist(query, self.nodes[entry].value), entry))
         tmpResult.add((self.dist(query, self.nodes[entry].value), entry))
         
         hops = 0
@@ -58,11 +57,7 @@ class NSWGraph:
             
             # 6 get element c closest from candidates (see paper 4.2.)
             # 7 remove c from candidates
-            closest_sim, сlosest_id = candidates.pop(0)
-                
-            ## this was older criterion
-            # if closest_candidate_ever == сlosest_id: break
-            # closest_candidate_ever = сlosest_id
+            closest_dist, сlosest_id = candidates.pop(0)
             
             # k-th best of global result
             # new stop condition from paper
@@ -71,7 +66,7 @@ class NSWGraph:
             #! NB this statemrnt from paper will not allow to converge in first run.
             #! thus we use tmpResult if result is empty
             if len(result or tmpResult) >= top:
-                if (result or tmpResult)[top-1][0] < closest_sim: break
+                if (result or tmpResult)[top-1][0] < closest_dist: break
 
             #  for every element e from friends of c do:
             for e in self.nodes[сlosest_id].neighbourhood:
@@ -101,8 +96,8 @@ class NSWGraph:
         
         for i in range(attempts):
             closest, hops = self.search_nsw_basic(query, visitedSet, candidates, result, top=top)
-            # print(visitedSet)
             result.update(closest)
+            result = sortedcontainers.SortedList(set(result))
             
         return [v for k, v in result[:top]]
     
