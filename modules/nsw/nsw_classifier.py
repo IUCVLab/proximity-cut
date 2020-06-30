@@ -44,7 +44,7 @@ class NSWClassifier(NSWGraph):
             if len(candidates) == 0: break
             closest_dist, сlosest_id = candidates.pop(0)
                 
-            if closest_dist_ever <= closest_dist: break
+            if closest_dist_ever < closest_dist: break
             closest_dist_ever = closest_dist
             class_ = self.nodes[сlosest_id]._class
             
