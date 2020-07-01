@@ -1,5 +1,6 @@
 import sys
 import random
+import time
 import sortedcontainers
 from collections import Counter
 from nsw.nsw import Node, NSWGraph
@@ -11,12 +12,14 @@ class NSWClassifier(NSWGraph):
         super().__init__()
         self.cut = set()
 
-    def build_navigable_graph(self, values, attempts=3):
+    def build_navigable_graph(self, values, attempts=3, verbose=False):
         self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
         d = len(values[0][0])
         f = 3 * d
-        print(f"Classifer process. Data dimensionality detected is {d}. regularity = {f}")
+        if verbose:
+            print(f"Classifier is building a graph. Data dimensionality detected is {d}. regularity = {f}")
         
+        start = time.time()
         # insert the remaining nodes one at a time
         for i in range(1, len(values)):
             val = values[i][0]
@@ -28,6 +31,12 @@ class NSWClassifier(NSWGraph):
                 self.nodes[c].neighbourhood.add(len(self.nodes) - 1)
                 if node._class != self.nodes[c]._class:
                     self.cut.add((node.idx, c))
+            if verbose:
+                if i * 10 % len(values) == 0:
+                    print(f"\t{100 * i / len(values):.2f}% of graph construction")
+            
+        end = time.time()
+        print(f"Classifier graph is build in {end - start:.3f}s")
 
     def classify_by_path_basic(self, query, guard_hops=100, callback=None):
         visitedSet, candidates, tmpResult = set(), sortedcontainers.SortedList(), sortedcontainers.SortedList()

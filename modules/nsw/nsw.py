@@ -101,7 +101,7 @@ class NSWGraph:
             
         return [v for k, v in result[:top]]
     
-    def build_navigable_graph(self, values, attempts=3):
+    def build_navigable_graph(self, values, attempts=3, verbose=False):
         '''Accepts container with values. Returns list with graph nodes'''
         # create graph with one node
         self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
@@ -111,7 +111,8 @@ class NSWGraph:
         # connect (f) is about 3d
         d = len(values[0][0])
         f = 3 * d
-        print(f"Data dimensionality detected is {d}. regularity = {f}")
+        if verbose:
+            print(f"Data dimensionality detected is {d}. regularity = {f}")
         
         # insert the remaining nodes one at a time
         for i in range(1, len(values)):
@@ -126,6 +127,9 @@ class NSWGraph:
             # connect the current node to the closest values
             for c in closest:
                 self.nodes[c].neighbourhood.add(len(self.nodes) - 1)
+            if verbose:
+                if i * 10 % len(values) == 0:
+                    print(f"\t{100 * i / len(values):.2f}% of graph construction")
     
     def plot(self):
         plt.figure(figsize=(10, 10))     
