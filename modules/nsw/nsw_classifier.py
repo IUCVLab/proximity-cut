@@ -68,11 +68,29 @@ class NSWClassifier(NSWGraph):
                 callback(self.nodes[сlosest_id].value, tmpResult)
 
         return class_
+
+    def classify_by_path_basic_no_heap(self, query, guard_hops=100):
+        entry = random.randint(0, len(self.nodes) - 1)        
+        closest, closest_dist = entry, self.dist(query, self.nodes[entry].value)
+
+        hops = 0    
+        while hops < guard_hops:
+            hops += 1
+            cl = closest
+            for e in self.nodes[cl].neighbourhood:
+                d = self.dist(query, self.nodes[e].value)
+                if d < closest_dist:
+                    closest, closest_dist = e, d
+            if cl == closest:
+                break
+        return self.nodes[closest]._class
+    
     
     def classify_by_path(self, query, attempts=5, top=5):
         result = Counter()
         for i in range(attempts):
-            c = self.classify_by_path_basic(query)
+            # c = self.classify_by_path_basic(query)
+            c = self.classify_by_path_basic_no_heap(query)
             result[c] += 1
         most_common = result.most_common(1)[0]
         
@@ -85,7 +103,8 @@ class NSWClassifier(NSWGraph):
     def classify_fuzzy_by_path(self, query, attempts=5, top=5):
         result = Counter()
         for i in range(attempts):
-            c = self.classify_by_path_basic(query)
+            # c = self.classify_by_path_basic(query)
+            c = self.classify_by_path_basic_no_heap(query)
             result[c] += 1
         return {(k, v / attempts) for k, v in result.items()}
                         
