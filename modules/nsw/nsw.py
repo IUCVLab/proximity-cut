@@ -131,7 +131,7 @@ class NSWGraph:
                 if i * 10 % len(values) == 0:
                     print(f"\t{100 * i / len(values):.2f}% of graph construction")
     
-    def plot(self):
+    def plot(self, edgeborder=0.2):
         plt.figure(figsize=(10, 10))     
         middles = []
         for e in self.get_edges():
@@ -139,7 +139,7 @@ class NSWGraph:
             sx, sy = n0.value
             fx, fy = n1.value
             # plot only relatively short edges
-            if self.dist(n0.value, n1.value) > 0.2:
+            if self.dist(n0.value, n1.value) > edgeborder:
                 continue
 
             if n0._class != n1._class:
@@ -158,24 +158,6 @@ class NSWGraph:
         
         plt.show()
 
-    def multi_search_and_plot(self, query, attempts=1, top_k=5):
-        ids = self.multi_search(query, attempts, top_k)
-        n = np.array([query] + [self.nodes[id].value for id in ids])
-        c = [2] + [self.nodes[id]._class for id in ids]
-        
-        data = {}
-        data['x'] = n[:,0]
-        data['y'] = n[:,1]
-        data['class'] = c
-        plt.figure(figsize=(8,5))
-        sns.scatterplot(
-            x="x", y="y",
-            style="class", hue="class",
-            data=data,
-            legend="full",
-            alpha=0.7
-        )
-        plt.show()
         
     def save(self, filename):
         with open(filename, 'wb') as f:
