@@ -1,0 +1,74 @@
+Dim: 2
+Starting index building
+Index is created. 51057 * '1' / 100000 total
+Test started
+HNSW-PATH: 99.72% in 37375
+     1-NN: 99.86% in 191967
+ NSW-PATH: 99.16% in 97132
+Dim: 4
+Starting index building
+Index is created. 53211 * '1' / 100000 total
+Test started
+HNSW-PATH: 95.66% in 24421
+     1-NN: 98.1% in 298911
+ NSW-PATH: 95.3% in 44281
+Dim: 8
+Starting index building
+Index is created. 56448 * '1' / 100000 total
+Test started
+HNSW-PATH: 85.36% in 81777
+     1-NN: 91.46% in 953071
+ NSW-PATH: 85.4% in 103349
+Dim: 10
+Starting index building
+Index is created. 57535 * '1' / 100000 total
+Test started
+HNSW-PATH: 82.7% in 67169
+     1-NN: 88.78% in 703553
+ NSW-PATH: 83.24% in 103402
+Dim: 16
+Starting index building
+Index is created. 60080 * '1' / 100000 total
+Test started
+HNSW-PATH: 74.96% in 76998
+     1-NN: 82.46% in 752802
+ NSW-PATH: 73.92% in 50555
+ 
+ ===============================================
+ 
+ Dim: 2
+Starting index building
+Index is created. 50960 * '1' / 100000 total
+Test started
+HNSW-PATH: 99.7% in 23667
+     1-NN: 99.94% in 156016
+ NSW-PATH: 96.78% in 66691
+Dim: 4
+Starting index building
+Index is created. 53116 * '1' / 100000 total
+Test started
+HNSW-PATH: 95.46% in 26519
+     1-NN: 97.84% in 256060
+ NSW-PATH: 95.2% in 35185
+Dim: 8
+Starting index building
+Index is created. 56646 * '1' / 100000 total
+Test started
+HNSW-PATH: 85.16% in 186875
+     1-NN: 91.02% in 418343
+ NSW-PATH: 84.66% in 28226
+Dim: 10
+Starting index building
+
+Index is created. 57371 * '1' / 100000 total
+Test started
+HNSW-PATH: 81.2% in 42260
+     1-NN: 89.14% in 509895
+ NSW-PATH: 81.16% in 62380
+Dim: 16
+Starting index building
+Index is created. 60068 * '1' / 100000 total
+Test started
+HNSW-PATH: 74.82% in 80292
+     1-NN: 82.1% in 735417
+ NSW-PATH: 73.96% in 52221
