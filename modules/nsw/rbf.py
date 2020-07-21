@@ -30,7 +30,8 @@ def simple_dot(a, b, x, eps):
 def amplified_cos(a, b, x, eps):
     c = (a + b) / 2
     dx = x - c
-    return 2. * sigmoid(np.dot(dx, c) / np.dot(c, c) / np.dot(dx, dx)) - 1.
+    de = a - b
+    return 2. * sigmoid(np.dot(dx, de) / np.dot(de, de) * np.dot(dx, dx)) - 1.
 
 
 def get_builtin_potential_function(G, cut, eps):
