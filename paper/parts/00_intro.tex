@@ -1,14 +1,28 @@
 \section{Introduction}\label{sec:INTRO}
 
-% here you start with discussion of a bigger problem, and go to the conclusion that the !!problem (not task)!! you are trying to solve is very important.
+Proximity graphs is a widely used set of graphs with an application in multiple areas.
+They are used for motion planning (as Rapidly-exploring random trees, RRT), utilized in clustering, and, which is very important, they lay in a core of $\mathcal{O}(\log(n))$ data structures for large-scale multidimensional data indexing.
+Graph-based indexing utilizes the idea that vectors space is often also a metric space or at least manifold.
+Thus, adding distance metric for nodes and requiring edges to represent neighbourhoods, we can benefit from different greedy-like algorithms, which search the graph with preliminary knowledge.
 
-Text \cite{jia2014caffe}
+Still, indices for large-scale multidimensional datasets struggle from high memory consumption. Thus, we address this problem in two ways. Firstly, in case index creation is indispensable, we will try to minimize classification time given a data structure by improving classification algorithm. Secondly, if we only have a goal to build a robust and compact classifier, we will try to minimize memory overhead by significantly reducing saved instances.
+
+More precisely, in this paper we will show, how some properties of proximity graphs can be utilized in machine learning for classification needs and hypersurface estimation. We will build very fast 1-NN classifier using HNSW graph modification. And also we will use proximity graph cut to approximate classifier function.
 
 % in the end you end up with a structure
 
+%% About nested graphs!!! In 1980 he introduced the relative neighborhood graph (RNG) to the fields of pattern recognition and machine learning, and showed that it contained the minimum spanning tree, and was a subgraph of the Delaunay triangulation. Three other well known proximity graphs are the nearest neighbor graph, the Urquhart graph, and the Gabriel graph. The first is contained in the minimum spanning tree, and the Urquhart graph contains the RNG, and is contained in the Delaunay triangulation. Since all these graphs are nested together they are referred to as the Toussaint hierarchy.[4]
+
+Major paper contributions can be described as follows:
+\begin{itemize}
+    \item We propose a classification method, based on NSW and HNSW graph indices, which shows 10x speedup in average compared to 1-NN classification baseline.
+    \item We propose a classification technique similar to the first, but requiring only a subset of graph edges, representing graph cut obtained on class a border. By only keeping these edges we can still perform classification.
+\end{itemize}
+
+
 The paper is organized as follows.
-In section~\ref{sec:OVERVIEW} we discuss related works including contemporary approaches to ....
-Section~\ref{sec:METHOD} is devoted to our proposed methodology for ....
-In section~\ref{sec:METHODRESULTS} we present experimental results.
+In section~\ref{sec:OVERVIEW} we discuss works related to indexing, proximity graphs and instance-based learning.
+Section~\ref{sec:METHOD} is devoted to our two proposed methods of classification.
+In section~\ref{sec:METHODRESULTS} we present experimental results, including classification accuracy and performance.
 These results are then discussed in section~\ref{sec:DISCUSSION},
-and conclusions are drawn in section~\ref{sec:CONCLUSION}.
+and conclusions and suggested improvements are drawn in section~\ref{sec:CONCLUSION}.
