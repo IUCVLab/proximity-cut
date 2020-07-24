@@ -130,6 +130,7 @@ namespace hnswlib {
         DISTFUNC<dist_t> fstdistfunc_;
         void *dist_func_param_;
         std::unordered_map<labeltype, tableint> label_lookup_;
+        std::unordered_map<tableint, labeltype> class_lookup_;
 
         std::default_random_engine level_generator_;
         std::default_random_engine update_probability_generator_;
@@ -824,8 +825,8 @@ namespace hnswlib {
             *((unsigned short int*)(ptr))=*((unsigned short int *)&size);
         }
 
-        void addPoint(const void *data_point, labeltype label) {
-            addPoint(data_point, label,-1);
+        void addPoint(const void *data_point, labeltype label, labeltype class_=0) {
+            addPoint(data_point, label, class_, -1);
         }
 
         void updatePoint(const void *dataPoint, tableint internalId, float updateNeighborProbability) {
@@ -978,7 +979,7 @@ namespace hnswlib {
             return result;
         };
 
-        tableint addPoint(const void *data_point, labeltype label, int level) {
+        tableint addPoint(const void *data_point, labeltype label, labeltype class_, int level) {
 
             tableint cur_c = 0;
             {
@@ -993,6 +994,7 @@ namespace hnswlib {
 
                     std::unique_lock <std::mutex> lock_el_update(link_list_update_locks_[(existingInternalId & (max_update_element_locks - 1))]);
                     updatePoint(data_point, existingInternalId, 1.0);
+                    class_lookup_[existingInternalId] = class_;
                     return existingInternalId;
                 }
 
@@ -1003,6 +1005,7 @@ namespace hnswlib {
                 cur_c = cur_element_count;
                 cur_element_count++;
                 label_lookup_[label] = cur_c;
+                class_lookup_[cur_c] = class_;
             }
 
             // Take update lock to prevent race conditions on an element with insertion/update at the same time.
@@ -1172,6 +1175,80 @@ namespace hnswlib {
             std::sort(result.begin(), result.end(), comp);
 
             return result;
+        }
+
+        labeltype getPointClass(const labeltype label) {
+          return class_lookup_[label_lookup_[label]];
+        }
+
+
+        labeltype classifyByPath(const void* query_data) {
+          tableint currObj = enterpoint_node_;
+          dist_t curdist = fstdistfunc_(query_data, getDataByInternalId(currObj), dist_func_param_);
+
+          for (int level = maxlevel_; level > 0; level--) {
+            bool changed = true;
+            while (changed) {
+              changed = false;
+              unsigned int* data;
+
+              data = (unsigned int*)get_linklist(currObj, level);
+              int size = getListCount(data);
+              metric_hops++;
+              metric_distance_computations += size;
+
+              tableint* datal = (tableint*)(data + 1);
+              for (int i = 0; i < size; i++) {
+                tableint cand = datal[i];
+                if (cand < 0 || cand > max_elements_)
+                  throw std::runtime_error("cand error");
+                dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
+
+                if (d < curdist) {
+                  curdist = d;
+                  currObj = cand;
+                  changed = true;
+                }
+              }
+            }
+          }
+
+          return class_lookup_[currObj];
+        }
+
+        labeltype classifyByPathNSW(const void* query_data) {
+          tableint currObj = enterpoint_node_;
+          dist_t curdist = fstdistfunc_(query_data, getDataByInternalId(currObj), dist_func_param_);
+
+          size_t level = 1;
+          {
+            bool changed = true;
+            while (changed) {
+              changed = false;
+              unsigned int* data;
+
+              data = (unsigned int*)get_linklist(currObj, level);
+              int size = getListCount(data);
+              metric_hops++;
+              metric_distance_computations += size;
+
+              tableint* datal = (tableint*)(data + 1);
+              for (int i = 0; i < size; i++) {
+                tableint cand = datal[i];
+                if (cand < 0 || cand > max_elements_)
+                  throw std::runtime_error("cand error");
+                dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
+
+                if (d < curdist) {
+                  curdist = d;
+                  currObj = cand;
+                  changed = true;
+                }
+              }
+            }
+          }
+
+          return class_lookup_[currObj];
         }
 
         void checkIntegrity(){
