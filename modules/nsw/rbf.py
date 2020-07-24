@@ -11,6 +11,11 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
+def signed_sigmoid(x):
+    '''Simple REAL sigmoid function to bring function to [-1 .. 1] interval '''
+    return 2 / (1 + np.exp(-x)) - 1.
+
+
 def gaussian_rbf(p, x, eps):
     '''REAL Gaussian radial basis function. Equals 1 in `p` and 0 far from `p` '''
     r = vector_norm(p - x)
@@ -133,40 +138,49 @@ def get_amplified_cos_potential_function(G, cut):
     return f 
 
 
+def get_grad_field_function(G, cut):    
+    def f(x, eps=0.05):
+        # step 1. Get closest edge points
+        # todo: build an index
+        cl = SortedList()
+        for e, length in cut:
+            a, b = G.nodes[e[0]].value, G.nodes[e[1]].value
+            center = (a + b) / 2
+            if G.nodes[e[0]]._class > G.nodes[e[1]]._class: a, b = b, a
+            
+            vect = (b - a) / vector_norm(b - a)
+            d = np.dot(center - x, center - x)
+            cl.add((d, vect))
+
+        vectors = np.zeros(cl[0][1].shape)
+        sum = 0.
+        for d, vect in cl:
+            if d > eps:
+                break
+            c = 2 / (1 + d / eps) - 1
+            vectors += c * vect
+            sum += 1
+        if sum > 0:
+            vectors /= sum
+            
+        return vectors
+    return f
+    
+
 def get_grad_based_classifier_function(G, cut):
     '''Returns REAL -1..1 value of belonging to a class. Based on [Gradient theorem](https://en.wikipedia.org/wiki/Gradient_theorem)'''
     
-    grad = get_vector_rbf_potential_function(G, cut)
+    grad = get_grad_field_function(G, cut)
     
-    def f(x, eps=10, M=10, N=3):
-        # step 1. Get closest edge points
-        # todo: build an index
-#         closest0, d0, closest1, d1 = None, None, None, None
-#         cl0, cl1 = SortedList(), SortedList()
-#         for e, length in cut:
-#             a, b = G.nodes[e[0]].value, G.nodes[e[1]].value
-#             if G.nodes[e[0]]._class > G.nodes[e[1]]._class:
-#                 a, b = b, a
-#             da = np.dot(a - x, a - x)
-#             db = np.dot(b - x, b - x)
-#             cl0.add((da, a))
-#             cl1.add((db, b))
-
+    def f(x, eps=.005, M=10):
         # step 2. Get integral along (d0 .. x) vector
         result = 0.
-#         for d0, d1 in zip(cl0[:N], cl1[:N]):
-#             dd0, dd1 = d0[1], d1[1]
-        for dd0 in [[.5, .5], [0., 0], [1., 1.], [.0, .1], [.6, .6]]:
+        for dd0, gtc in [([.5, .5], 1), ([.62, .55], 1), ([0., 0], -1), ([.0, .1], -1)]:
             dd0 = np.array(dd0)
             r = x - dd0
             for i in range(M):
                 p = dd0 + (r * i / M)
-                result += np.dot(grad(p, eps), r)
-
-#             r = x - dd1
-#             for i in range(M):
-#                 p = d1 + (r * i / M)
-#                 result += np.dot(grad(p, eps), r)      
+                result += np.dot(grad(p, eps), r) * gtc
         print(".", end="")
         return result
     return f
