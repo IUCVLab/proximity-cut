@@ -138,49 +138,80 @@ def get_amplified_cos_potential_function(G, cut):
     return f 
 
 
-def get_grad_field_function(G, cut):    
+def get_grad_field_function(G, cut):
+    edges = []
+    edge_index = NSWGraph()
+    for e, length in cut:
+        a, b = G.nodes[e[0]].value, G.nodes[e[1]].value
+        center = (a + b) / 2
+        edges.append((center, e))
+    edge_index.build_navigable_graph(edges)
+    print("get_grad_field_function: Edge index is prepared.")
+    
     def f(x, eps=0.05):
         # step 1. Get closest edge points
-        # todo: build an index
-        cl = SortedList()
-        for e, length in cut:
-            a, b = G.nodes[e[0]].value, G.nodes[e[1]].value
-            center = (a + b) / 2
-            if G.nodes[e[0]]._class > G.nodes[e[1]]._class: a, b = b, a
+    
+#         # todo: build an index
+#         cl = SortedList()
+#         for e, length in cut:
+#             a, b = G.nodes[e[0]].value, G.nodes[e[1]].value
+#             center = (a + b) / 2
+#             if G.nodes[e[0]]._class > G.nodes[e[1]]._class: a, b = b, a
             
-            vect = (b - a) / vector_norm(b - a)
-            d = np.dot(center - x, center - x)
-            cl.add((d, vect))
+#             vect = (b - a) / vector_norm(b - a)
+#             d = np.dot(center - x, center - x)
+#             cl.add((d, vect))
 
-        vectors = np.zeros(cl[0][1].shape)
-        sum = 0.
-        for d, vect in cl:
-            if d > eps:
-                break
+
+        vs, cs, rs = set(), SortedList(), SortedList()
+        tops, hops = edge_index.search_nsw_basic(x, vs, cs, rs, top=100)
+        summ = 0.
+        vectors = np.zeros(edge_index.nodes[0].value.shape)
+        for d, idx in tops:
+            if d > eps: break    
+            center = edge_index.nodes[idx].value
+            edge = edge_index.nodes[idx]._class
+            a, b = G.nodes[edge[0]].value, G.nodes[edge[1]].value
+            if G.nodes[edge[0]]._class > G.nodes[edge[1]]._class: a, b = b, a
+            vect = vect = (b - a) / vector_norm(b - a)
+            # c = 1
             c = 2 / (1 + d / eps) - 1
             vectors += c * vect
-            sum += 1
-        if sum > 0:
-            vectors /= sum
-            
+            summ += 1
+        if summ > 0:
+            vectors /= summ
         return vectors
+    
     return f
     
 
-def get_grad_based_classifier_function(G, cut):
+def get_grad_based_classifier_function(G, cut, support):
     '''Returns REAL -1..1 value of belonging to a class. Based on [Gradient theorem](https://en.wikipedia.org/wiki/Gradient_theorem)'''
     
     grad = get_grad_field_function(G, cut)
     
-    def f(x, eps=.005, M=10):
+    def f(x, eps=.005, small=0.001, closest=5, M=10):
+        # step 1. Closest support items
+        top = SortedList()
+        for val, class_ in support:
+            dst = G.dist(x, val)
+            top.add((dst, val, class_))
+
         # step 2. Get integral along (d0 .. x) vector
-        result = 0.
-        for dd0, gtc in [([.5, .5], 1), ([.62, .55], 1), ([0., 0], -1), ([.0, .1], -1)]:
-            dd0 = np.array(dd0)
-            r = x - dd0
+        votes = {0: 0, 1: 0}
+        for d, val, class_ in top[:closest]:
+            r = x - val
+            integral = 0.
             for i in range(M):
-                p = dd0 + (r * i / M)
-                result += np.dot(grad(p, eps), r) * gtc
+                p = val + (r * i / M)
+                integral += np.dot(grad(p, eps), r)
+            if abs(integral) < small:
+                votes[class_] += 1
+            elif integral > small:
+                votes[1] += 1
+            else:
+                votes[0] += 1
+                        
         print(".", end="")
-        return result
+        return int(votes[1] > votes[0])
     return f

@@ -132,7 +132,7 @@ class NSWGraph:
                     print(f"\t{100 * i / len(values):.2f}% of graph construction")
     
     def plot(self, edgeborder=0.2):
-        plt.figure(figsize=(10, 10))     
+        plt.figure(figsize=(7, 5))     
         middles = []
         for e in self.get_edges():
             n0, n1 = self.nodes[e[0]], self.nodes[e[1]]
@@ -143,19 +143,19 @@ class NSWGraph:
                 continue
 
             if n0._class != n1._class:
-                plt.plot([sx, fx], [sy, fy], linewidth=1, c='#FFAA00')
-                middles.append((n0.value + n1.value) / 2.)
+                # plt.plot([sx, fx], [sy, fy], linewidth=1, c='#FFAA00')
+                # middles.append((n0.value + n1.value) / 2.)
+                plt.plot([sx, fx], [sy, fy], linewidth=1, c='k', zorder=3)
             else:
-                plt.plot([sx, fx], [sy, fy], linewidth=1, c='#DDDDDD')
+                plt.plot([sx, fx], [sy, fy], linewidth=1, c='#EEEEEE', zorder=1)
 
         markers = ['o', '>']
+        colors = ['#CCCCCC', '#777777']
         for i, m in enumerate(markers):
             x = [node.value[0] for node in self.nodes if node._class == i]
             y = [node.value[1] for node in self.nodes if node._class == i]
-            plt.scatter(x, y, marker=m, s=20)
-            
-        plt.scatter([v[0] for v in middles], [v[1] for v in middles], marker='*', s=100)
-        
+            plt.scatter(x, y, marker=m, s=50, color=colors[i], zorder=2, label=f"class {i}")
+        plt.legend(prop={"size":16})
         plt.show()
 
         

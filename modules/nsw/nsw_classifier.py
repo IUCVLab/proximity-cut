@@ -70,7 +70,7 @@ class NSWClassifier(NSWGraph):
         return class_
 
     def classify_by_path_basic_no_heap(self, query, guard_hops=100):
-        entry = random.randint(0, len(self.nodes) - 1)        
+        entry = random.randint(0, len(self.nodes) - 1)
         closest, closest_dist = entry, self.dist(query, self.nodes[entry].value)
 
         hops = 0    

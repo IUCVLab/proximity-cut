@@ -22,9 +22,6 @@ void run_test(const ssize_t vecdim) {
 
 	size_t pos_cls = 0;
 	for (size_t i = 0; i < count; ++i) {
-		if ((i / 10000) * 10000 == i) {
-			// std::cout << i << "/" << count << std::endl;
-		}
 		
 		float r2 = 0;
 		for (size_t j = 0; j < vecdim; j++) {
@@ -61,28 +58,28 @@ void run_test(const ssize_t vecdim) {
 		positive_path += index.classifyByPath((void*)(testdata + i * vecdim)) == testclasses[i];
 	}
 	auto stop = std::chrono::high_resolution_clock::now();
-	auto path_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+	float path_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 
-	std::cout << "HNSW-PATH: " << 100. * positive_path / testsize << "% in " << path_time << std::endl;
+	std::cout << "HNSW-PATH: " << 100. * positive_path / testsize << "% in " << path_time / testsize << "ms avg" << std::endl;
 
 	start = std::chrono::high_resolution_clock::now();
 	for (size_t i = 0; i < testsize; ++i) {
 		positive_1nn += index.getPointClass(index.searchKnn((void*)(testdata + i * vecdim), 1).top().second) == testclasses[i];
 	}
 	stop = std::chrono::high_resolution_clock::now();
-	auto knn_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+	float knn_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 
-	std::cout << "     1-NN: " << 100. * positive_1nn / testsize << "% in " << knn_time << std::endl;
+	std::cout << "     1-NN: " << 100. * positive_1nn / testsize << "% in " << knn_time/ testsize << " ms avg" << std::endl;
 
 	start = std::chrono::high_resolution_clock::now();
 	for (size_t i = 0; i < testsize; ++i) {
 		positive_nsw_path += index.classifyByPathNSW((void*)(testdata + i * vecdim)) == testclasses[i];
 	}
 	stop = std::chrono::high_resolution_clock::now();
-	auto nsw_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+	float nsw_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 
 
-	std::cout << " NSW-PATH: " << 100. * positive_nsw_path / testsize << "% in " << nsw_time << std::endl;
+	std::cout << " NSW-PATH: " << 100. * positive_nsw_path / testsize << "% in " << nsw_time / testsize << " ms avg" << std::endl;
 
 }
 
