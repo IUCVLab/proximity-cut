@@ -1,7 +1,7 @@
 \section{Introduction}\label{sec:INTRO}
 
 Proximity graphs is a widely used set of graphs with an application in multiple areas.
-They are used for motion planning (as Rapidly-exploring random trees, RRT), utilized in clustering, and, which is very important, they lay in a core of $\mathcal{O}(\log(n))$ data structures for large-scale multidimensional data indexing.
+They are used for motion planning (as Rapidly-exploring random trees, RRT), utilized in clustering, and, which is very important, they lay in a core of $\mathcal{O}(log(|V|))$ data structures for large-scale multidimensional data indexing. Here and later we will use $|V|$ for the number of vertices and $|E|$ for the number of edges in a graph.
 Graph-based indexing utilizes the idea that vectors space is often also a metric space or at least manifold.
 Thus, adding distance metric for nodes and requiring edges to represent neighbourhoods, we can benefit from different greedy-like algorithms, which search the graph with preliminary knowledge.
 
@@ -15,14 +15,15 @@ More precisely, in this paper we will show, how some properties of proximity gra
 
 Major paper contributions can be described as follows:
 \begin{itemize}
-    \item We propose a classification method, based on NSW and HNSW graph indices, which shows 10x speedup in average compared to 1-NN classification baseline.
-    \item We propose a classification technique similar to the first, but requiring only a subset of graph edges, representing graph cut obtained on class a border. By only keeping these edges we can still perform classification.
+    \item We propose instance-based classification method, improving NSW and HNSW graph indices, which shows 10x speedup in average compared to 1-NN classification baseline.
+    \item We propose a classification technique similar to the first, but requiring only a subset of graph nodes, representing class a border.
 \end{itemize}
 
+All our experiments, results and code are available in our GitHub repository\footnote{\texttt{Repository of the paper} codebase: \url{https://github.com/IUCVLab/proximity-cut}.}.
 
 The paper is organized as follows.
 In section~\ref{sec:OVERVIEW} we discuss works related to indexing, proximity graphs and instance-based learning.
 Section~\ref{sec:METHOD} is devoted to our two proposed methods of classification.
-In section~\ref{sec:METHODRESULTS} we present experimental results, including classification accuracy and performance.
+In section~\ref{sec:METHODRESULTS} we present experimental results, including classification accuracy and time performance.
 These results are then discussed in section~\ref{sec:DISCUSSION},
 and conclusions and suggested improvements are drawn in section~\ref{sec:CONCLUSION}.
