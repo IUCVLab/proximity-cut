@@ -18,7 +18,7 @@ class CutClassifier:
         print(f"Clean cut ({len(self.clean_cut)}).")
         self.eps = self.get_mid_shortest_dist()
         print(f"Shortest dist estimated ({self.eps:.4f}).")
-        self.support = self.get_support()
+        self.support = self.get_support(N=len(self.graph.nodes) // 10)
         print(f"Support with {len(self.support)} nodes is created.")
         self.support_nsw = NSWGraph()
         self.support_nsw.build_navigable_graph(self.support, attempts=5, verbose=verbose)
@@ -73,29 +73,36 @@ class CutClassifier:
         grad = rbf.get_grad_field_function(self.graph, self.clean_cut)
         
         
-        def f(x, R=2, small=0.001, closest=5, M=10):
+        def f(x, R=2, small=0.001, closest=5, M=10, callback=None):
             # step 1. Closest support items
             vs, cs, rs = set(), sortedcontainers.SortedList(), sortedcontainers.SortedList()
             top, hops = self.support_nsw.search_nsw_basic(x, vs, cs, rs,  top=closest)
             top = top[:closest]
             
-
             # TBD implement multiclass voting
-            votes = dict((v, 0) for v in (classes or [0, 1]))
+            votes = {0: 0, 1: 0}
+            monitor = dict()
             
             for d, n in top[:closest]:
-                val, class_ = self.graph.nodes[n].value, self.graph.nodes[n]._class
+                val, class_ = self.support_nsw.nodes[n].value, self.support_nsw.nodes[n]._class
                 r = x - val
                 integral = 0.
                 # step 2. Get integral along (d0 .. x) vector
                 for i in range(M):
                     p = val + (r * i / M)
                     integral += np.dot(grad(p, self.eps * R), r)
+                # print(f"<i={integral}>~<{class_}>\t", end="", )
                 if abs(integral) < small:
                     votes[class_] += 1
+                    monitor[n] = 0
                 elif integral > small:
                     votes[1] += 1
+                    monitor[n] = 1
                 else:
                     votes[0] += 1
+                    monitor[n] = -1
+            # print(votes, end="")
+            if callback is not None:
+                callback(self, x, monitor)
             return votes[1] / (votes[0] + votes[1])
         return f
