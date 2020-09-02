@@ -12,10 +12,10 @@ class NSWClassifier(NSWGraph):
         super().__init__()
         self.cut = set()
 
-    def build_navigable_graph(self, values, attempts=3, verbose=False):
+    def build_navigable_graph(self, values, attempts=3, verbose=False, M=None):
         self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
         d = len(values[0][0])
-        f = 3 * d
+        f = 3 * d if M is None else M
         if verbose:
             print(f"Classifier is building a graph. Data dimensionality detected is {d}. regularity = {f}")
         

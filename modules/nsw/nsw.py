@@ -101,7 +101,7 @@ class NSWGraph:
             
         return [v for k, v in result[:top]]
     
-    def build_navigable_graph(self, values, attempts=3, verbose=False):
+    def build_navigable_graph(self, values, attempts=3, verbose=False, M=None):
         '''Accepts container with values. Returns list with graph nodes'''
         # create graph with one node
         self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))
@@ -110,7 +110,7 @@ class NSWGraph:
         # d = 1...20, the optimal value for number of neighbors to
         # connect (f) is about 3d
         d = len(values[0][0])
-        f = 3 * d
+        f = 3 * d if M is None else M
         if verbose:
             print(f"Data dimensionality detected is {d}. regularity = {f}")
         

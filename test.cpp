@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include <utility>
+#include <map>
 #include "hnswlib/hnswlib.h"
 
 typedef std::pair<float*, hnswlib::labeltype*> dataset_t;
@@ -75,12 +76,12 @@ train_test_t splitDataset(dataset_t& dataset, const size_t vecdim, const size_t 
 	return { train, test };
 }
 
-void run_test(const size_t count, const size_t vecdim) {
-	std::cout << "|V| = " << count << " Dim: " << vecdim << ". Starting index building. " << std::flush;
+void run_test(const size_t count, const size_t vecdim, const size_t M) {
+	std::cout << "|V|=" << count << "; Dim=" << vecdim << "; M=" << M << ". Starting index building. " << std::flush;
 	hnswlib::L2Space l2space(vecdim);
 	float *data, *testdata;
 	hnswlib::labeltype *classes, *testclasses;
-	hnswlib::HierarchicalNSW<float> index = hnswlib::HierarchicalNSW<float>(&l2space, count * 10, vecdim * 3);
+	hnswlib::HierarchicalNSW<float> index = hnswlib::HierarchicalNSW<float>(&l2space, count * 10, M);
 	size_t pos_cls = 0;
 	auto generated = generateDataset(vecdim, count);
 	data = generated.first;
@@ -95,8 +96,9 @@ void run_test(const size_t count, const size_t vecdim) {
 	size_t testsize = count / 20, 
 					positive_path = 0, 
 					positive_nsw_path = 0,
-					positive_1nn = 0;
-	float nsw_time = 0, knn_time = 0, path_time = 0;
+					positive_1nn = 0,
+				  positive_5nn = 0;
+	float nsw_time = 0, knn_time = 0, knn5_time = 0, path_time = 0;
 
 	auto generated_test = generateDataset(vecdim, testsize);
 	testdata = generated_test.first;
@@ -110,6 +112,32 @@ void run_test(const size_t count, const size_t vecdim) {
 		auto stop = std::chrono::high_resolution_clock::now();
 		knn_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 		std::cout << "     1-NN: " << 100. * positive_1nn / testsize << "% in " << knn_time / testsize << " ms avg" << std::endl;
+	}
+
+	{
+		size_t k = 5;
+		auto start = std::chrono::high_resolution_clock::now();
+		for (size_t i = 0; i < testsize; ++i) {
+			std::map<hnswlib::labeltype, size_t> m;
+			auto q = index.searchKnn((void*)(testdata + i * vecdim), k);
+			while (!q.empty()) {
+				auto p = q.top();
+				q.pop();
+				m[index.getPointClass(p.second)]++;
+			}
+			hnswlib::labeltype best;
+			size_t best_count = 0;
+			for (const auto& pair : m) {
+				if (pair.second > best_count) {
+					best = pair.first;
+					best_count = pair.second;
+				}
+			}
+			positive_5nn += best == testclasses[i];
+		}
+		auto stop = std::chrono::high_resolution_clock::now();
+		knn5_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+		std::cout << "     5-NN: " << 100. * positive_5nn / testsize << "% in " << knn5_time / testsize << " ms avg" << std::endl;
 	}
 
 	{
@@ -134,6 +162,8 @@ void run_test(const size_t count, const size_t vecdim) {
 
 	std::cout << " NSWvs1NN: " << "speedup " << knn_time / nsw_time << " times avg" << std::endl;
 	std::cout << "HNSWvs1NN: " << "speedup " << knn_time / path_time << " times avg" << std::endl;
+	std::cout << " NSWvs5NN: " << "speedup " << knn5_time / nsw_time << " times avg" << std::endl;
+	std::cout << "HNSWvs5NN: " << "speedup " << knn5_time / path_time << " times avg" << std::endl;
 
 	delete data,
 	delete testdata;
@@ -157,8 +187,9 @@ void run_test_real(const std::string& filename, const size_t vecdim, const size_
 	size_t testsize = count - trainsize,
 		positive_path = 0,
 		positive_nsw_path = 0,
-		positive_1nn = 0;
-	float nsw_time = 0, knn_time = 0, path_time = 0;
+		positive_1nn = 0,
+		positive_5nn = 0;
+	float nsw_time = 0, knn_time = 0, knn5_time = 0, path_time = 0;
 
 	data = train.first;
 	classes = train.second;
@@ -166,7 +197,7 @@ void run_test_real(const std::string& filename, const size_t vecdim, const size_
 	testclasses = test.second;
 
 	hnswlib::L2Space l2space(vecdim);
-	hnswlib::HierarchicalNSW<float> index = hnswlib::HierarchicalNSW<float>(&l2space, trainsize, M);
+	hnswlib::HierarchicalNSW<float> index = hnswlib::HierarchicalNSW<float>(&l2space, trainsize * 2, M);
 
 	for (size_t i = 0; i < trainsize; ++i) {
 		index.addPoint((void*)(data + i * vecdim), i, classes[i]);
@@ -182,6 +213,33 @@ void run_test_real(const std::string& filename, const size_t vecdim, const size_
 		knn_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 		std::cout << "     1-NN: " << 100. * positive_1nn / testsize << "% in " << knn_time / testsize << " ms avg" << std::endl;
 	}
+
+	{
+		size_t k = 5;
+		auto start = std::chrono::high_resolution_clock::now();
+		for (size_t i = 0; i < testsize; ++i) {
+			std::map<hnswlib::labeltype, size_t> m;
+			auto q = index.searchKnn((void*)(testdata + i * vecdim), k);
+			while (!q.empty()) {
+				auto p = q.top();
+				q.pop();
+				m[index.getPointClass(p.second)]++;
+			}
+			hnswlib::labeltype best;
+			size_t best_count = 0;
+			for (const auto& pair : m) {
+				if (pair.second > best_count) {
+					best = pair.first;
+					best_count = pair.second;
+				}
+			}
+			positive_5nn += best == testclasses[i];
+		}
+		auto stop = std::chrono::high_resolution_clock::now();
+		knn5_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+		std::cout << "     5-NN: " << 100. * positive_5nn / testsize << "% in " << knn5_time / testsize << " ms avg" << std::endl;
+	}
+
 
 	{
 		auto start = std::chrono::high_resolution_clock::now();
@@ -205,6 +263,9 @@ void run_test_real(const std::string& filename, const size_t vecdim, const size_
 
 	std::cout << " NSWvs1NN: " << "speedup " << knn_time / nsw_time << " times avg" << std::endl;
 	std::cout << "HNSWvs1NN: " << "speedup " << knn_time / path_time << " times avg" << std::endl;
+	std::cout << " NSWvs5NN: " << "speedup " << knn5_time / nsw_time << " times avg" << std::endl;
+	std::cout << "HNSWvs5NN: " << "speedup " << knn5_time / path_time << " times avg" << std::endl;
+
 
 	delete data,
 	delete testdata;
@@ -214,24 +275,49 @@ void run_test_real(const std::string& filename, const size_t vecdim, const size_
 
 int main() {
 	srand(time(NULL));
+	// run_test_real("100leavesMar.txt", 64, 1600, .9, 50);
+	//run_test_real("100leavesMar.txt", 64, 1600, .9, 192);
+	//run_test_real("100leavesMar.txt", 64, 1600, .9, 16);
+	//run_test_real("100leavesMar.txt", 64, 1600, .9, 8);
+	//run_test_real("100leavesMar.txt", 64, 1600, .9, 4);
+	run_test_real("road.txt", 1024, 10100, .9, 32);
+	run_test_real("road.txt", 1024, 10100, .9, 64);
+	run_test_real("road.txt", 1024, 10100, .9, 128);
+	run_test_real("road.txt", 1024, 10100, .9, 256);
+	//run_test_real("100leavesMar.txt", 64, 1600, .9, 193);
+	run_test(3000, 256, 768);
+	return 0;
+
+	run_test_real("road.txt", 1024, 10100, .9, 8);
 	run_test_real("mnist.txt", 64, 1798, .9, 8);
 	run_test_real("mnist.txt", 64, 1798, .9, 64 * 3);
 	run_test_real("100leavesMar.txt", 64, 1600, .9, 8);
 	run_test_real("100leavesSha.txt", 64, 1600, .9, 8);
 	run_test_real("100leavesTex.txt", 64, 1600, .9, 8);
-	run_test_real("road.txt", 1024, 10100, .99, 48);
+	//run_test_real("road.txt", 1024, 10100, .99, 16);
+	//run_test_real("road.txt", 1024, 10100, .9, 16);
+	//run_test_real("road.txt", 1024, 10100, .99, 32);
+	//run_test_real("road.txt", 1024, 10100, .99, 48);
 
-	return 0;
+	run_test(2000, 2, 2 * 3);
+	run_test(5000, 2, 2 * 3);
+	run_test(3000, 16, 16 * 3);
+	run_test(3000, 64, 64 * 3);
+	run_test(3000, 256, 256 * 3);
 
-	run_test(2000, 2);
-	run_test(5000, 2);
-	run_test(3000, 16);
-	run_test(3000, 64);
-	run_test(3000, 256);
+	run_test(2000, 2, 8);
+	run_test(5000, 2, 8);
+	run_test(3000, 16, 8);
+	run_test(3000, 64, 8);
+	run_test(3000, 256, 8);
 
-	run_test(100000, 2);
-	run_test(100000, 4);
-	run_test(100000, 8);
-	run_test(100000, 10);
-	run_test(100000, 16);
+	run_test(100000, 2, 8);
+	run_test(100000, 4, 8);
+	run_test(100000, 8, 8);
+	run_test(100000, 10, 8);
+	run_test(100000, 16, 8);
+
+	run_test_real("road.txt", 1024, 10100, .99, 8);
+	run_test_real("road.txt", 1024, 10100, .9, 8);
+
 }
