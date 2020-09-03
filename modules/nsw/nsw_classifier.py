@@ -11,6 +11,10 @@ class NSWClassifier(NSWGraph):
     def __init__(self):
         super().__init__()
         self.cut = set()
+        
+    def __init__(self, values=None, dist=None):
+        super().__init__(values, dist)
+        self.cut = set()
 
     def build_navigable_graph(self, values, attempts=3, verbose=False, M=None):
         self.nodes.append(Node(values[0][0], len(self.nodes), values[0][1]))

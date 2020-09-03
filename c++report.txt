@@ -1,0 +1,189 @@
+mnist.txt D=64; |V|=1798; train part=0.9; M=8 ... loaded and splitted. Index constructed
+     1-NN: 98.8889% in 57.5167 ms avg
+     5-NN: 98.8889% in 61.7722 ms avg
+ NSW-PATH: 80.5556% in 8.15556 ms avg
+HNSW-PATH: 88.8889% in 8.16111 ms avg
+ NSWvs1NN: speedup 7.05245 times avg
+HNSWvs1NN: speedup 7.04765 times avg
+ NSWvs5NN: speedup 7.57425 times avg
+HNSWvs5NN: speedup 7.56909 times avg
+mnist.txt D=64; |V|=1798; train part=0.9; M=192 ... loaded and splitted. Index constructed
+     1-NN: 98.8889% in 106.039 ms avg
+     5-NN: 98.8889% in 120.85 ms avg
+ NSW-PATH: 44.4444% in 2.13889 ms avg
+HNSW-PATH: 44.4444% in 2.07778 ms avg
+ NSWvs1NN: speedup 49.5766 times avg
+HNSWvs1NN: speedup 51.0348 times avg
+ NSWvs5NN: speedup 56.5013 times avg
+HNSWvs5NN: speedup 58.1631 times avg
+100leavesMar.txt D=64; |V|=1600; train part=0.9; M=8 ... loaded and splitted. Index constructed
+     1-NN: 78.125% in 84.2937 ms avg
+     5-NN: 81.25% in 57.6875 ms avg
+ NSW-PATH: 42.5% in 8.61875 ms avg
+HNSW-PATH: 40.625% in 10.1562 ms avg
+ NSWvs1NN: speedup 9.78028 times avg
+HNSWvs1NN: speedup 8.29969 times avg
+ NSWvs5NN: speedup 6.69326 times avg
+HNSWvs5NN: speedup 5.68 times avg
+100leavesSha.txt D=64; |V|=1600; train part=0.9; M=8 ... loaded and splitted. Index constructed
+     1-NN: 61.25% in 40.2687 ms avg
+     5-NN: 56.25% in 74.95 ms avg
+ NSW-PATH: 33.75% in 7.7875 ms avg
+HNSW-PATH: 34.375% in 6.55 ms avg
+ NSWvs1NN: speedup 5.17095 times avg
+HNSWvs1NN: speedup 6.1479 times avg
+ NSWvs5NN: speedup 9.6244 times avg
+HNSWvs5NN: speedup 11.4427 times avg
+100leavesTex.txt D=64; |V|=1600; train part=0.9; M=8 ... loaded and splitted. Index constructed
+     1-NN: 75% in 67.3562 ms avg
+     5-NN: 70.625% in 64.325 ms avg
+ NSW-PATH: 28.75% in 6.84375 ms avg
+HNSW-PATH: 31.25% in 5.825 ms avg
+ NSWvs1NN: speedup 9.84201 times avg
+HNSWvs1NN: speedup 11.5633 times avg
+ NSWvs5NN: speedup 9.39909 times avg
+HNSWvs5NN: speedup 11.0429 times avg
+|V|=2000; Dim=2; M=6. Starting index building. Index is created. 1045 * '1' / 2000 total. Starting a test
+     1-NN: 100% in 34.14 ms avg
+     5-NN: 100% in 47.44 ms avg
+ NSW-PATH: 90% in 2.44 ms avg
+HNSW-PATH: 98% in 5.89 ms avg
+ NSWvs1NN: speedup 13.9918 times avg
+HNSWvs1NN: speedup 5.79626 times avg
+ NSWvs5NN: speedup 19.4426 times avg
+HNSWvs5NN: speedup 8.05433 times avg
+|V|=5000; Dim=2; M=6. Starting index building. Index is created. 2529 * '1' / 5000 total. Starting a test
+     1-NN: 100% in 41.912 ms avg
+     5-NN: 100% in 80.504 ms avg
+ NSW-PATH: 98.4% in 6.932 ms avg
+HNSW-PATH: 99.2% in 9.872 ms avg
+ NSWvs1NN: speedup 6.04616 times avg
+HNSWvs1NN: speedup 4.24554 times avg
+ NSWvs5NN: speedup 11.6134 times avg
+HNSWvs5NN: speedup 8.15478 times avg
+|V|=3000; Dim=16; M=48. Starting index building. Index is created. 1746 * '1' / 3000 total. Starting a test
+     1-NN: 79.3333% in 168.22 ms avg
+     5-NN: 90% in 120.72 ms avg
+ NSW-PATH: 70% in 29.52 ms avg
+HNSW-PATH: 70% in 22 ms avg
+ NSWvs1NN: speedup 5.69851 times avg
+HNSWvs1NN: speedup 7.64636 times avg
+ NSWvs5NN: speedup 4.08943 times avg
+HNSWvs5NN: speedup 5.48727 times avg
+|V|=3000; Dim=64; M=192. Starting index building. Index is created. 2166 * '1' / 3000 total. Starting a test
+     1-NN: 66.6667% in 208.633 ms avg
+     5-NN: 70.6667% in 218.767 ms avg
+ NSW-PATH: 63.3333% in 5.36667 ms avg
+HNSW-PATH: 63.3333% in 6.65333 ms avg
+ NSWvs1NN: speedup 38.8758 times avg
+HNSWvs1NN: speedup 31.3577 times avg
+ NSWvs5NN: speedup 40.764 times avg
+HNSWvs5NN: speedup 32.8808 times avg
+|V|=3000; Dim=256; M=768. Starting index building. Index is created. 2601 * '1' / 3000 total. Starting a test
+     1-NN: 81.3333% in 1073.44 ms avg
+     5-NN: 89.3333% in 1302.39 ms avg
+ NSW-PATH: 90% in 1.93333 ms avg
+HNSW-PATH: 90% in 2.13333 ms avg
+ NSWvs1NN: speedup 555.228 times avg
+HNSWvs1NN: speedup 503.175 times avg
+ NSWvs5NN: speedup 673.648 times avg
+HNSWvs5NN: speedup 610.494 times avg
+|V|=2000; Dim=2; M=8. Starting index building. Index is created. 1017 * '1' / 2000 total. Starting a test
+     1-NN: 100% in 27.41 ms avg
+     5-NN: 100% in 37.54 ms avg
+ NSW-PATH: 92% in 2.77 ms avg
+HNSW-PATH: 91% in 2.09 ms avg
+ NSWvs1NN: speedup 9.89531 times avg
+HNSWvs1NN: speedup 13.1148 times avg
+ NSWvs5NN: speedup 13.5523 times avg
+HNSWvs5NN: speedup 17.9617 times avg
+|V|=5000; Dim=2; M=8. Starting index building. Index is created. 2562 * '1' / 5000 total. Starting a test
+     1-NN: 99.2% in 25.272 ms avg
+     5-NN: 99.6% in 52.044 ms avg
+ NSW-PATH: 98.4% in 2.232 ms avg
+HNSW-PATH: 98% in 2.144 ms avg
+ NSWvs1NN: speedup 11.3226 times avg
+HNSWvs1NN: speedup 11.7873 times avg
+ NSWvs5NN: speedup 23.3172 times avg
+HNSWvs5NN: speedup 24.2743 times avg
+|V|=3000; Dim=16; M=8. Starting index building. Index is created. 1802 * '1' / 3000 total. Starting a test
+     1-NN: 80.6667% in 56.3133 ms avg
+     5-NN: 81.3333% in 73.5333 ms avg
+ NSW-PATH: 69.3333% in 3.17333 ms avg
+HNSW-PATH: 67.3333% in 3.18 ms avg
+ NSWvs1NN: speedup 17.7458 times avg
+HNSWvs1NN: speedup 17.7086 times avg
+ NSWvs5NN: speedup 23.1723 times avg
+HNSWvs5NN: speedup 23.1237 times avg
+|V|=3000; Dim=64; M=8. Starting index building. Index is created. 2143 * '1' / 3000 total. Starting a test
+     1-NN: 67.3333% in 123.373 ms avg
+     5-NN: 75.3333% in 109.38 ms avg
+ NSW-PATH: 58.6667% in 4.95333 ms avg
+HNSW-PATH: 69.3333% in 7.52667 ms avg
+ NSWvs1NN: speedup 24.9071 times avg
+HNSWvs1NN: speedup 16.3915 times avg
+ NSWvs5NN: speedup 22.0821 times avg
+HNSWvs5NN: speedup 14.5323 times avg
+|V|=3000; Dim=256; M=8. Starting index building. Index is created. 2635 * '1' / 3000 total. Starting a test
+     1-NN: 71.3333% in 224.8 ms avg
+     5-NN: 85.3333% in 221.16 ms avg
+ NSW-PATH: 71.3333% in 21.34 ms avg
+HNSW-PATH: 77.3333% in 29.1867 ms avg
+ NSWvs1NN: speedup 10.5342 times avg
+HNSWvs1NN: speedup 7.70215 times avg
+ NSWvs5NN: speedup 10.3636 times avg
+HNSWvs5NN: speedup 7.57743 times avg
+|V|=100000; Dim=2; M=8. Starting index building. Index is created. 50945 * '1' / 100000 total. Starting a test
+     1-NN: 99.94% in 31.6596 ms avg
+     5-NN: 99.94% in 48.9492 ms avg
+ NSW-PATH: 98.46% in 18.0794 ms avg
+HNSW-PATH: 99.58% in 3.598 ms avg
+ NSWvs1NN: speedup 1.75114 times avg
+HNSWvs1NN: speedup 8.79922 times avg
+ NSWvs5NN: speedup 2.70746 times avg
+HNSWvs5NN: speedup 13.6046 times avg
+|V|=100000; Dim=4; M=8. Starting index building. Index is created. 53555 * '1' / 100000 total. Starting a test
+     1-NN: 97.94% in 45.258 ms avg
+     5-NN: 98.3% in 55.1186 ms avg
+ NSW-PATH: 94.92% in 4.8916 ms avg
+HNSW-PATH: 96.02% in 4.3966 ms avg
+ NSWvs1NN: speedup 9.25219 times avg
+HNSWvs1NN: speedup 10.2939 times avg
+ NSWvs5NN: speedup 11.268 times avg
+HNSWvs5NN: speedup 12.5366 times avg
+|V|=100000; Dim=8; M=8. Starting index building. Index is created. 56517 * '1' / 100000 total. Starting a test
+     1-NN: 91.32% in 57.8492 ms avg
+     5-NN: 93.98% in 67.5824 ms avg
+ NSW-PATH: 85.3% in 5.519 ms avg
+HNSW-PATH: 86.8% in 6.644 ms avg
+ NSWvs1NN: speedup 10.4818 times avg
+HNSWvs1NN: speedup 8.70698 times avg
+ NSWvs5NN: speedup 12.2454 times avg
+HNSWvs5NN: speedup 10.1719 times avg
+|V|=100000; Dim=10; M=8. Starting index building. Index is created. 57738 * '1' / 100000 total. Starting a test
+     1-NN: 88.7% in 76.6894 ms avg
+     5-NN: 91.6% in 113.566 ms avg
+ NSW-PATH: 77.52% in 7.4988 ms avg
+HNSW-PATH: 80.84% in 12.1932 ms avg
+ NSWvs1NN: speedup 10.2269 times avg
+HNSWvs1NN: speedup 6.28952 times avg
+ NSWvs5NN: speedup 15.1445 times avg
+HNSWvs5NN: speedup 9.31385 times avg
+|V|=100000; Dim=16; M=8. Starting index building. Index is created. 60194 * '1' / 100000 total. Starting a test
+     1-NN: 82.72% in 78.2172 ms avg
+     5-NN: 85.82% in 99.6132 ms avg
+ NSW-PATH: 68.36% in 9.4008 ms avg
+HNSW-PATH: 74.4% in 10.511 ms avg
+ NSWvs1NN: speedup 8.32027 times avg
+HNSWvs1NN: speedup 7.44146 times avg
+ NSWvs5NN: speedup 10.5962 times avg
+HNSWvs5NN: speedup 9.47704 times avg
+road.txt D=1024; |V|=10100; train part=0.9; M=8 ... loaded and splitted. Index constructed
+     1-NN: 92.5743% in 208.995 ms avg
+     5-NN: 92.5743% in 159.693 ms avg
+ NSW-PATH: 92.5743% in 25.2168 ms avg
+HNSW-PATH: 92.5743% in 72.4198 ms avg
+ NSWvs1NN: speedup 8.28792 times avg
+HNSWvs1NN: speedup 2.88588 times avg
+ NSWvs5NN: speedup 6.3328 times avg
+HNSWvs5NN: speedup 2.2051 times avg
