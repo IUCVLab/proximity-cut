@@ -10,11 +10,14 @@ from nsw import rbf
 
 class CutClassifier:
     
-    def __init__(self, G, cut, verbose=True):
+    def __init__(self, G, cut, verbose=True, wilson=True):
         print(f"Graph initialized with cut ({len(cut)}).")
         self.graph = G
         self.cut = cut
-        self.clean_cut = self.wilson()
+        if wilson:
+            self.clean_cut = self.wilson()
+        else:
+            self.clean_cut = self.cut
         print(f"Clean cut ({len(self.clean_cut)}).")
         self.eps = self.get_mid_shortest_dist()
         print(f"Shortest dist estimated ({self.eps:.4f}).")

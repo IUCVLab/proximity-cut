@@ -129,3 +129,11 @@ class NSWClassifier(NSWGraph):
         classes = Counter([self.nodes[i]._class for i in top])
         
         return {(key, val / k) for key, val in classes.items()}
+    
+    def get_sorted_rich_cut(self):
+        return sorted(
+                [
+                    (e, self.dist(self.nodes[e[0]].value, self.nodes[e[1]].value)) 
+                    for e in self.cut
+                ], key=lambda v: v[1]
+            )
