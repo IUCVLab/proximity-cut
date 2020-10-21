@@ -1,50 +1,12 @@
 
-#include <cassert>
 #include <ctime>
-#include <iostream>
 #include <fstream>
 #include <queue>
 #include <chrono>
-#include <string>
-#include <cstring>
+
 #include <utility>
-#include <map>
-#include "hnswlib/hnswlib.h"
 
-typedef std::pair<float*, hnswlib::labeltype*> dataset_t;
-typedef std::pair<dataset_t, dataset_t> train_test_t;
-
-dataset_t generateDataset(const size_t vecdim, const size_t count) {
-	float* data = new float[count * vecdim];
-	hnswlib::labeltype* labels = new hnswlib::labeltype[count];
-	float border = .79 * sqrt(vecdim / 2);
-	border *= border;
-
-	for (size_t i = 0; i < count; ++i) {
-		float r2 = 0;
-		for (size_t j = 0; j < vecdim; j++) {
-			data[i * vecdim + j] = (rand() / float(RAND_MAX));
-			r2 += data[i * vecdim + j] * data[i * vecdim + j];
-		}
-		hnswlib::labeltype cls = r2 > border;
-		labels[i] = cls;
-	}
-	return { data, labels };
-}
-
-dataset_t loadDataset(const std::string& filename, const size_t vecdim, const size_t count) {
-	float* data = new float[count * vecdim];
-	hnswlib::labeltype* labels = new hnswlib::labeltype[count];
-
-	std::ifstream file(filename);
-	for (size_t i = 0; i < count; ++i) {
-		file >> labels[i];
-		for (size_t j = 0; j < vecdim; ++j) {
-			file >> data[i * vecdim + j];
-		}
-	}
-	return { data, labels };
-}
+#include "test_tools.h"
 
 train_test_t splitDataset(dataset_t& dataset, const size_t vecdim, const size_t count, const size_t train_size) {
 	dataset_t train, test;
