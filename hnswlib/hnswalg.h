@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <unordered_set>
 #include <list>
+#include <set>
 
 
 namespace hnswlib {
@@ -1139,7 +1140,7 @@ namespace hnswlib {
             }
 
             std::priority_queue<std::pair<dist_t, tableint>, std::vector<std::pair<dist_t, tableint>>, CompareByFirst> top_candidates;
-            if (has_deletions_) {                
+            if (has_deletions_) {
                 top_candidates=searchBaseLayerST<true,true>(
                         currObj, query_data, std::max(ef_, k));
             }
@@ -1217,26 +1218,29 @@ namespace hnswlib {
         }
 
         labeltype classifyByPathNSW(const void* query_data) {
-          tableint currObj = enterpoint_node_;
+          std::uniform_int_distribution<> distr(0, class_lookup_.size() - 1);
+          tableint currObj = distr(update_probability_generator_);
           dist_t curdist = fstdistfunc_(query_data, getDataByInternalId(currObj), dist_func_param_);
-
-          size_t level = 1;
           {
             bool changed = true;
             while (changed) {
               changed = false;
-              unsigned int* data;
-
-              data = (unsigned int*)get_linklist(currObj, level);
-              int size = getListCount(data);
+              // neghbours list at level 0
+              unsigned int* data = (unsigned int*)get_linklist0(currObj);
+              // count of neighbours (first short @ pointer)
+              auto size = getListCount(data);
               metric_hops++;
               metric_distance_computations += size;
-
+              // shift by 1 int short to obtain the data
               tableint* datal = (tableint*)(data + 1);
+              // for each neighbour
               for (int i = 0; i < size; i++) {
+                // internal id
                 tableint cand = datal[i];
-                if (cand < 0 || cand > max_elements_)
+                if (cand < 0 || cand > max_elements_) {
                   throw std::runtime_error("candidate error");
+                }
+                // count distance
                 dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
 
                 if (d < curdist) {
@@ -1247,8 +1251,73 @@ namespace hnswlib {
               }
             }
           }
-
           return class_lookup_[currObj];
+        }
+
+        tableint get1NNByPathNSW(const void* query_data) {
+          std::uniform_int_distribution<> distr(0, class_lookup_.size() - 1);
+          tableint currObj = distr(update_probability_generator_);
+          dist_t curdist = fstdistfunc_(query_data, getDataByInternalId(currObj), dist_func_param_);
+          {
+            bool changed = true;
+            while (changed) {
+              changed = false;
+              // neghbours list at level 0
+              unsigned int* data = (unsigned int*)get_linklist0(currObj);
+              // count of neighbours (first short @ pointer)
+              auto size = getListCount(data);
+              metric_hops++;
+              metric_distance_computations += size;
+              // shift by 1 int short to obtain the data
+              tableint* datal = (tableint*)(data + 1);
+              // for each neighbour
+              for (int i = 0; i < size; i++) {
+                // internal id
+                tableint cand = datal[i];
+                if (cand < 0 || cand > max_elements_) {
+                  throw std::runtime_error("candidate error");
+                }
+                // count distance
+                dist_t d = fstdistfunc_(query_data, getDataByInternalId(cand), dist_func_param_);
+
+                if (d < curdist) {
+                  curdist = d;
+                  currObj = cand;
+                  changed = true;
+                }
+              }
+            }
+          }
+          return currObj;
+        }
+
+        labeltype classifyByPathNSW_kNN(const void* query_data, size_t k) {
+            std::map<labeltype, size_t> m;
+            for (size_t i = 0; i < k; i++) {
+                m[classifyByPathNSW(query_data)]++;
+            }
+            labeltype best(0);
+            for (const auto& kvp : m) {
+                if (m[best] <= kvp.second) {
+                    best = kvp.first;
+                }
+            }
+            return best;
+        }
+
+        labeltype classifyByPathNSW_kNN_weighted(const void* query_data, size_t k) {
+            std::map<labeltype, float> m;
+            for (size_t i = 0; i < k; i++) {
+                auto nn = get1NNByPathNSW(query_data);
+                m[class_lookup_[nn]] += 1 / (fstdistfunc_(query_data, getDataByInternalId(nn), dist_func_param_) + 1);
+            }
+            labeltype best(0);
+            for (const auto& kvp : m) {
+                if (m[best] <= kvp.second) {
+                    best = kvp.first;
+                }
+            }
+            return best;
         }
 
         void checkIntegrity(){
@@ -1262,19 +1331,19 @@ namespace hnswlib {
                     std::unordered_set<tableint> s;
                     for (int j=0; j<size; j++){
                         assert(data[j] > 0);
-                        assert(data[j] < cur_element_count);                                                
+                        assert(data[j] < cur_element_count);
                         assert (data[j] != i);
                         inbound_connections_num[data[j]]++;
                         s.insert(data[j]);
                         connections_checked++;
-                        
+
                     }
                     assert(s.size() == size);
                 }
             }
             if(cur_element_count > 1){
                 int min1=inbound_connections_num[0], max1=inbound_connections_num[0];
-                for(int i=0; i < cur_element_count; i++){                
+                for(int i=0; i < cur_element_count; i++){
                     assert(inbound_connections_num[i] > 0);
                     min1=std::min(inbound_connections_num[i],min1);
                     max1=std::max(inbound_connections_num[i],max1);
@@ -1282,7 +1351,7 @@ namespace hnswlib {
                 std::cout << "Min inbound: " << min1 << ", Max inbound:" << max1 << "\n";
             }
             std::cout << "integrity ok, checked " << connections_checked << " connections\n";
-            
+
         }
 
     };
