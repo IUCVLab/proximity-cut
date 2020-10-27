@@ -106,28 +106,25 @@ void run_test(const size_t count, const size_t vecdim, const size_t M) {
 
 int main() {
 	srand(time(NULL));
-	int Ms[] = {4, 8, 16, 32, 64};
 
-	for (size_t i = 0; i < 5; ++i) {
+	// std::cout << "'=== HIGGS 32 ===" << std::endl;
+	// dataset_t higgs = load_libsvm("./data/higgs/HIGGS", 28, 11000000);
+	// run_test_general(higgs, 28, 11000000, .99, 32);
 
-		std::cout << "Inspecting M=" << Ms[i] << std::endl;
 
-		std::cout << "'=== 100 leaves margin ===" << std::endl;
-		dataset_t leaves100mar = load_dataset("./data/100leaves/mar.txt", 64, 1600);
-		run_test_general(leaves100mar, 64, 1600, .9, Ms[i]);
+	// std::cout << "'=== SUSY 64 ===" << std::endl;
+	// dataset_t susy = load_libsvm("./data/susy/SUSY", 18, 5000000);
+	// run_test_general(susy, 18, 5000000, .99, 64);
 
-		std::cout << "'=== CovType ===" << std::endl;
-		dataset_t covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
-		run_test_general(covertype, 54, 581012, .9, Ms[i]);
+	dataset_t covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 4);
+	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 8);
+	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 16);
+	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 32);
 
-		std::cout << "'=== SUSY ===" << std::endl;
-		dataset_t susy = load_libsvm("./data/susy/SUSY", 18, 5000000);
-		run_test_general(susy, 18, 5000000, .95, Ms[i]);
-
-		std::cout << "'=== HIGGS ===" << std::endl;
-		dataset_t higgs = load_libsvm("./data/higgs/HIGGS", 28, 11000000);
-		run_test_general(higgs, 28, 11000000, .95, Ms[i]);
-	}
 
 //==============================================================
 /*

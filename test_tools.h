@@ -18,3 +18,5 @@ dataset_t load_libsvm(const std::string& filename, const size_t vecdim, const si
 train_test_t split_dataset(dataset_t& dataset, const size_t vecdim, const size_t count, const size_t train_size);
 
 void run_test_general(dataset_t& dataset, const size_t vecdim, const size_t count, const float train_part, const size_t M);
+
+void run_test_stat(dataset_t& dataset, const size_t vecdim, const size_t count, const float train_part, const size_t M);

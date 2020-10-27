@@ -93,7 +93,13 @@ train_test_t split_dataset(dataset_t& dataset, const size_t vecdim, const size_t
 	return { train, test };
 }
 
-void run_test_general(dataset_t& dataset, const size_t vecdim, const size_t count, const float train_part, const size_t M) {
+void run_test_general(
+			dataset_t& dataset,
+			const size_t vecdim,
+			const size_t count,
+			const float train_part,
+			const size_t M
+		) {
 	std::cout << " D=" << vecdim << "; |V|=" << count << "; train part=" << train_part << "; M=" << M << " ... " << std::flush;
 	size_t trainsize = (size_t)(train_part * count);
 	auto traintest = split_dataset(dataset, vecdim, count, trainsize);
@@ -274,6 +280,101 @@ void run_test_general(dataset_t& dataset, const size_t vecdim, const size_t coun
 				<< knn5_time / nsw_11nn_time
 				<< std::endl;
 
+
+	delete data,
+	delete testdata;
+	delete classes;
+	delete testclasses;
+}
+
+
+void run_test_stat(
+			dataset_t& dataset,
+			const size_t vecdim,
+			const size_t count,
+			const float train_part,
+			const size_t M
+		) {
+	std::cout << "# D=" << vecdim << "; |V|=" << count << "; train part=" << train_part << "; M=" << M << " ... " << std::flush;
+	size_t trainsize = (size_t)(train_part * count);
+	auto traintest = split_dataset(dataset, vecdim, count, trainsize);
+	std::cout << "loaded and splitted " << trainsize << " train by " << (count - trainsize) << " test." << std::endl;
+	delete dataset.first;
+	delete dataset.second;
+	auto train = traintest.first;
+	auto test = traintest.second;
+
+	float* data, * testdata;
+	hnswlib::labeltype* classes, * testclasses;
+	size_t testsize = count - trainsize;
+
+	size_t
+		positive_hnsw_path = 0,
+		positive_nsw_path = 0,
+		positive_1nn = 0;
+
+	std::vector<float> nsw_times, knn_times, hnsw_times;
+	nsw_times.reserve(testsize);
+	knn_times.reserve(testsize);
+	hnsw_times.reserve(testsize);
+
+	data = train.first;
+	classes = train.second;
+	testdata = test.first;
+	testclasses = test.second;
+
+	hnswlib::L2Space l2space(vecdim);
+	hnswlib::HierarchicalNSW<float> index = hnswlib::HierarchicalNSW<float>(&l2space, trainsize * 2, M);
+
+	for (size_t i = 0; i < trainsize; ++i) {
+		index.addPoint((void*)(data + i * vecdim), i, classes[i]);
+	}
+
+	std::chrono::system_clock::time_point start, stop;
+	{
+		for (size_t i = 0; i < testsize; ++i) {
+			start = std::chrono::high_resolution_clock::now();
+			positive_1nn += index.getPointClass(index.searchKnn((void*)(testdata + i * vecdim), 1).top().second) == testclasses[i];
+			stop = std::chrono::high_resolution_clock::now();
+			knn_times.push_back(std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count());
+		}
+	}
+
+	{
+		for (size_t i = 0; i < testsize; ++i) {
+			start = std::chrono::high_resolution_clock::now();
+			positive_nsw_path += index.classifyByPathNSW((void*)(testdata + i * vecdim)) == testclasses[i];
+			stop = std::chrono::high_resolution_clock::now();
+			nsw_times.push_back(std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count());
+		}
+	}
+
+	{
+		for (size_t i = 0; i < testsize; ++i) {
+			start = std::chrono::high_resolution_clock::now();
+			positive_hnsw_path += index.classifyByPath((void*)(testdata + i * vecdim)) == testclasses[i];
+			stop = std::chrono::high_resolution_clock::now();
+			hnsw_times.push_back(std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count());
+		}
+	}
+
+	std::cout << "\nknn_times = [" << std::flush;
+	for (auto f : knn_times) {
+		std::cout << f << ", ";
+	}
+	std::cout << "]" << std::endl;
+
+	std::cout << "nsw_times = [" << std::flush;
+	for (auto f : nsw_times) {
+		std::cout << f << ", ";
+	}
+	std::cout << "]" << std::endl;
+
+	std::cout << "hnsw_times = [" << std::flush;
+	for (auto f : hnsw_times) {
+		std::cout << f << ", ";
+	}
+	std::cout << "]" << std::endl;
 
 	delete data,
 	delete testdata;
