@@ -124,6 +124,14 @@ int main() {
 	run_test_stat(covertype, 54, 58101, .95, 16);
 	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
 	run_test_stat(covertype, 54, 58101, .95, 32);
+	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 64);
+	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 128);
+	covertype = load_libsvm("./data/covtype/covtype.binary.scale", 54, 581012);
+	run_test_stat(covertype, 54, 58101, .95, 256);
+
+
 
 
 //==============================================================
