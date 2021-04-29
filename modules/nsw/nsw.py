@@ -158,6 +158,8 @@ class NSWGraph:
         plt.legend(prop={"size":16}, loc=1)
         # plt.show()
 
+    def __len__(self):
+        return len(self.nodes)
         
     def save(self, filename):
         with open(filename, 'wb') as f:
